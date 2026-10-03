@@ -1,24 +1,25 @@
 {
   "environment": {
-    "python": "3.13.9",
-    "platform": "Linux-6.8.0-124-generic-x86_64-with-glibc2.39",
-    "machine": "x86_64",
-    "processor": "x86_64",
-    "cpu_count": 256,
-    "rpi_model": null,
-    "cpu_temp_c": null,
-    "ram_mb": 1081931.1,
-    "onnxruntime": "1.30.0",
+    "python": "3.13.5",
+    "platform": "Linux-6.18.50+rpt-rpi-2712-aarch64-with-glibc2.41",
+    "machine": "aarch64",
+    "processor": "",
+    "cpu_count": 4,
+    "rpi_model": "Raspberry Pi 5 Model B Rev 1.1",
+    "cpu_temp_c": 57.85,
+    "ram_mb": 8449.8,
+    "onnxruntime": "1.21",
     "providers": [
-      "AzureExecutionProvider",
+      "DnnlExecutionProvider",
+      "XnnpackExecutionProvider",
       "CPUExecutionProvider"
     ],
-    "numpy": "2.5.3",
+    "numpy": "2.2.4",
     "onnx_file_mb": 27.45
   },
   "model": {
     "onnx_file_mb": 27.45,
-    "load_ms": 57.92197585105896,
+    "load_ms": 86.46296499864548,
     "input": {
       "name": "logmel",
       "shape": [
@@ -41,7 +42,7 @@
     "unknown_threshold": 0.163
   },
   "dataset": {
-    "source": "manifest /mnt/jfs_hpc/home/sonny.redula/MEX2-Update/FINAL/app/rpi_validation/test_data/holdout/manifest.csv",
+    "source": "manifest /home/sonny-rpi5/Documents/GitHub/AI231-MEX2/app/rpi_validation/test_data/holdout/manifest.csv",
     "n": 186,
     "valid": 186
   },
@@ -49,64 +50,64 @@
     "bench_source": "dataset",
     "clip_ms": 1522.0,
     "frontend": {
-      "mean_ms": 0.64130015,
-      "median_ms": 0.6244315,
-      "p95_ms": 0.6881250499999998,
-      "p99_ms": 1.3301757700000063,
-      "min_ms": 0.519718,
-      "max_ms": 2.54716,
-      "std_ms": 0.21223909898448848
+      "mean_ms": 3.50663321,
+      "median_ms": 3.4340135,
+      "p95_ms": 4.1529096,
+      "p99_ms": 4.428166720000001,
+      "min_ms": 2.979943,
+      "max_ms": 4.587925,
+      "std_ms": 0.37855070845154404
     },
     "onnx": {
-      "mean_ms": 48.06783397000001,
-      "median_ms": 47.057434,
-      "p95_ms": 54.2827667,
-      "p99_ms": 56.28744027000008,
-      "min_ms": 43.982632,
-      "max_ms": 72.361008,
-      "std_ms": 3.766632502876983
+      "mean_ms": 174.00746835,
+      "median_ms": 153.26287000000002,
+      "p95_ms": 277.4421483,
+      "p99_ms": 330.7032667700001,
+      "min_ms": 145.760911,
+      "max_ms": 348.483941,
+      "std_ms": 43.01544826179197
     },
     "end_to_end": {
-      "mean_ms": 49.31293221000001,
-      "median_ms": 47.7397605,
-      "p95_ms": 57.60948155,
-      "p99_ms": 65.86767623000021,
-      "min_ms": 44.690567,
-      "max_ms": 107.551055,
-      "std_ms": 6.8535704371275905
+      "mean_ms": 158.62640401000002,
+      "median_ms": 152.3469905,
+      "p95_ms": 210.26486175,
+      "p99_ms": 218.89481478000008,
+      "min_ms": 149.898681,
+      "max_ms": 230.91369,
+      "std_ms": 17.185177485278697
     },
-    "real_time_factor": 0.03240008686596584,
-    "throughput_per_s": 20.27865623040792,
+    "real_time_factor": 0.10422234166228647,
+    "throughput_per_s": 6.304120718370182,
     "thread_sweep": {
       "1": {
-        "mean_ms": 87.45155626,
-        "median_ms": 87.4203485,
-        "p95_ms": 89.55030355,
-        "p99_ms": 90.7404064,
-        "min_ms": 84.975053,
-        "max_ms": 90.861407,
-        "std_ms": 1.2305130940093207,
-        "throughput_per_s": 11.434902279233606
+        "mean_ms": 301.6260168,
+        "median_ms": 293.6230865,
+        "p95_ms": 336.98053884999996,
+        "p99_ms": 350.80529932999997,
+        "min_ms": 286.097738,
+        "max_ms": 358.210955,
+        "std_ms": 16.25677377779026,
+        "throughput_per_s": 3.31536387546792
       },
       "2": {
-        "mean_ms": 46.53364874,
-        "median_ms": 45.699945,
-        "p95_ms": 51.29230945,
-        "p99_ms": 53.29958273,
-        "min_ms": 44.113742,
-        "max_ms": 54.254408,
-        "std_ms": 2.3567120735366105,
-        "throughput_per_s": 21.489825686942254
+        "mean_ms": 205.5378508,
+        "median_ms": 199.61672149999998,
+        "p95_ms": 288.10689744999996,
+        "p99_ms": 329.59999593,
+        "min_ms": 154.531917,
+        "max_ms": 330.384164,
+        "std_ms": 48.31642447959493,
+        "throughput_per_s": 4.865283917817438
       },
       "4": {
-        "mean_ms": 25.056990940000006,
-        "median_ms": 24.5125465,
-        "p95_ms": 27.860085299999998,
-        "p99_ms": 30.340178549999997,
-        "min_ms": 22.809075,
-        "max_ms": 31.311018,
-        "std_ms": 1.6587297375288768,
-        "throughput_per_s": 39.90902189311323
+        "mean_ms": 206.80296459999997,
+        "median_ms": 188.392899,
+        "p95_ms": 327.46349674999993,
+        "p99_ms": 360.94724784,
+        "min_ms": 146.737396,
+        "max_ms": 364.090982,
+        "std_ms": 53.12191898029473,
+        "throughput_per_s": 4.83552062193213
       }
     }
   },
@@ -1397,21 +1398,51 @@
   },
   "runtime": {
     "sustained_seconds": 30,
-    "n_inferences": 596,
-    "mean_ms": 49.37968224328859,
-    "p95_ms": 60.6461755,
-    "first_half_ms": 49.5389528557047,
-    "second_half_ms": 49.22041163087248,
-    "drift_ms": -0.3185412248322166,
-    "drift_pct": -0.6430116231161631,
-    "temp_start_c": null,
-    "temp_end_c": null,
-    "temp_max_c": null,
-    "temp_series": []
+    "n_inferences": 178,
+    "mean_ms": 169.06724216292136,
+    "p95_ms": 221.87849255000003,
+    "first_half_ms": 169.54500277528092,
+    "second_half_ms": 168.5894815505618,
+    "drift_ms": -0.9555212247191207,
+    "drift_pct": -0.563579703959538,
+    "temp_start_c": 62.8,
+    "temp_end_c": 66.1,
+    "temp_max_c": 67.2,
+    "temp_series": [
+      63.9,
+      63.35,
+      63.9,
+      65.0,
+      64.45,
+      65.55,
+      65.55,
+      66.1,
+      66.1,
+      65.0,
+      66.1,
+      65.0,
+      65.55,
+      65.55,
+      67.2,
+      65.0,
+      66.1,
+      65.55,
+      66.1,
+      67.2,
+      66.65,
+      64.45,
+      66.65,
+      65.55,
+      66.1,
+      66.1,
+      65.55,
+      65.55
+    ]
   },
   "plots": [
-    "/mnt/jfs_hpc/home/sonny.redula/MEX2-Update/FINAL/app/rpi_validation/results/accuracy_plots.png",
-    "/mnt/jfs_hpc/home/sonny.redula/MEX2-Update/FINAL/app/rpi_validation/results/accuracy_confusion_matrix.png"
+    "/home/sonny-rpi5/Documents/GitHub/AI231-MEX2/app/rpi_validation/results/accuracy_plots.png",
+    "/home/sonny-rpi5/Documents/GitHub/AI231-MEX2/app/rpi_validation/results/accuracy_confusion_matrix.png",
+    "/home/sonny-rpi5/Documents/GitHub/AI231-MEX2/app/rpi_validation/results/sustained_plots.png"
   ],
-  "generated_at": "2026-10-03 11:48:54"
+  "generated_at": "2026-10-03 12:02:25"
 }
