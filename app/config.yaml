@@ -28,8 +28,8 @@ command:
   num_threads: 2
   # selectable command classifiers:  python app.py --classifier <NAME>
   models:
-    "MEX2-31class": "models/command_classifier"   # bundled, validated on the Pi 5 (metadata frontend)
-    "MEX2-trained": "models/classifier"           # trained by the pipeline (31-class, torchaudio frontend)
+    "MEX2-31class": "models/command_classifier"          # bundled, validated on the Pi 5 (metadata frontend)
+    "MEX2-trained": "models/command_classifier/trained"  # trained by the pipeline (31-class, torchaudio frontend)
 
 audio:
   device: null                        # null = system default input; or integer index

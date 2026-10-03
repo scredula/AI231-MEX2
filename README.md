@@ -46,7 +46,7 @@ No microphone? Use the GUI's **Simulate Wake** / **Simulate Command** buttons.
 | Wake word | **MatchboxNet** (default) | `app/models/wake_word/matchboxnet` | best wake-word model |
 | Wake word | VGG | `app/models/wake_word/vgg` | |
 | Classifier | **MEX2-31class** (default) | `app/models/command_classifier` | validated on the Pi 5 |
-| Classifier | MEX2-trained | `app/models/classifier` | produced by `training/` |
+| Classifier | MEX2-trained | `app/models/command_classifier/trained` | produced by `training/` |
 
 Headless self-test (no GUI/mic needed):
 
