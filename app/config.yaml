@@ -2,6 +2,7 @@
 # Paths are relative to the repository root.
 
 wake_word:
+  model: "MatchboxNet"                        # default (overridable via --model)
   model_dir: "models/wake_word/matchboxnet"   # default (overridable via --model)
   onnx_name: "best_model.onnx"
   threshold: 0.15                     # trigger threshold (default)
@@ -10,10 +11,11 @@ wake_word:
   cooldown_s: 2.0                     # min seconds between wake triggers
   num_threads: 2                      # ORT threads (limit for thermal management)
   # selectable wake-word models:  python app.py --model <NAME>
+  # (MatchboxNet listed first = default)
   models:
+    "MatchboxNet": "models/wake_word/matchboxnet"
     "DS-CNN": "models/wake_word/dscnn"
     "TC-ResNet": "models/wake_word/tcresnet"
-    "MatchboxNet": "models/wake_word/matchboxnet"
     "VGG": "models/wake_word/vgg"
 
 command:

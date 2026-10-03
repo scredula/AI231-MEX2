@@ -392,14 +392,18 @@ def main():
             print(f"  {k:<14} -> {v:<32} {'[present]' if present else '[missing]'}")
         return 0
 
-    if args.model:
-        key = _canon_model(registry, args.model)
+    # Wake word: --model overrides the config default (wake_word.model).
+    ww_name = args.model or (cfg.get("wake_word", {}) or {}).get("model")
+    if ww_name:
+        key = _canon_model(registry, ww_name)
         if key is None:
-            opts = ", ".join(registry) or "(none configured)"
-            print(f"Unknown --model '{args.model}'. Options: {opts}")
-            return 2
-        cfg.setdefault("wake_word", {})["model_dir"] = registry[key]
-        print(f"Using wake-word model: {key}  ({registry[key]})")
+            if args.model:
+                opts = ", ".join(registry) or "(none configured)"
+                print(f"Unknown --model '{args.model}'. Options: {opts}")
+                return 2
+        else:
+            cfg.setdefault("wake_word", {})["model_dir"] = registry[key]
+            print(f"Using wake-word model: {key}  ({registry[key]})")
 
     # Command classifier: --classifier overrides the config default.
     clf_name = args.classifier or (cfg.get("command", {}) or {}).get("model")

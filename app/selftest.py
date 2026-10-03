@@ -161,10 +161,16 @@ def _resolve_model_dir(model: str | None, model_dir: str | None) -> Path:
                         return APP_DIR / v
                 print(f"(unknown --model '{model}'; using default)")
             elif reg:
-                # default = first present, else matchboxnet
-                for k, v in reg.items():
-                    if (APP_DIR / v / "best_model.onnx").exists():
-                        return APP_DIR / v
+                ww = cfg.get("wake_word", {}) or {}
+                # default = config wake_word.model, else model_dir, else MatchboxNet
+                for cand in (ww.get("model"), "MatchboxNet"):
+                    if not cand:
+                        continue
+                    for k, v in reg.items():
+                        if cand.lower() in (k.lower(), Path(v).name.lower()):
+                            return APP_DIR / v
+                if ww.get("model_dir"):
+                    return APP_DIR / ww["model_dir"]
         except Exception:
             pass
     return default
