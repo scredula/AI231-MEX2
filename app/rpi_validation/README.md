@@ -9,6 +9,7 @@ target device, both using the **same production code path** as the app
 | `keyword_intent_validation.ipynb` | **keyword intent accuracy**, **false accept rate (FAR/FRR)**, **latency**, **runtime/thermal** |
 | `command_classifier_validation.ipynb` | accuracy + plots + latency + runtime (dataset explorer) |
 | `bench_latency.py` | headless **latency/runtime** only (no Jupyter needed) |
+| `validate_classifier.py` | headless **accuracy (top-1/3/5, per-class P/R/F1, FAR) + latency** for **any** classifier |
 
 ## Run
 
@@ -31,6 +32,23 @@ cd ..                                   # app folder
 Prints frontend / ONNX / end-to-end latency (mean, median, p95, p99), real-time
 factor, throughput, a thread sweep, and (with `--seconds`) a sustained
 thermal-drift run. Report saved to `rpi_validation/results/latency.json`.
+
+**Validate any command classifier (accuracy + latency, no Jupyter):**
+
+```bash
+cd ..                                   # app folder
+./venv/bin/python rpi_validation/validate_classifier.py                  # config default
+./venv/bin/python rpi_validation/validate_classifier.py --classifier MEX2-trained
+./venv/bin/python rpi_validation/validate_classifier.py --all
+./venv/bin/python rpi_validation/validate_classifier.py --data my_wavs --manifest my.csv
+```
+
+Uses the app's production path (`commands.CommandClassifier`), so it works with
+**both** classifier formats (the bundled `command_metadata.json` model and the
+pipeline-trained `frontend.json` model). It prints top-1/3/5, macro-F1,
+per-class precision/recall/F1, the false-accept rate on negatives, coverage, and
+end-to-end latency (mean/p50/p95/p99) + CPU temperature, and saves JSON to
+`rpi_validation/results/validate_<model>.json`.
 
 **Full metrics notebook (adds accuracy, plots):**
 

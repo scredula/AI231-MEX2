@@ -78,6 +78,14 @@ Quick latency-only run (no Jupyter):
 cd app && ./venv/bin/python rpi_validation/bench_latency.py --runs 200
 ```
 
+Validate a **specific** command classifier (accuracy + latency + FAR, no Jupyter):
+
+```bash
+cd app
+./venv/bin/python rpi_validation/validate_classifier.py --classifier MEX2-trained
+./venv/bin/python rpi_validation/validate_classifier.py --all
+```
+
 ---
 
 ## 3. One-line training & validation
