@@ -47,6 +47,15 @@ music:
   dir: "music"                        # put .mp3/.wav songs here
   volume: 0.7
 
+weather:
+  # Live conditions shown by the browser UI (app.py --ui web).
+  # Open-Meteo is free and needs no API key.
+  place: "Cebu City, PH"
+  lat: 10.3157
+  lon: 123.8854
+  tz: "Asia/Manila"
+  ttl_s: 600                          # cache a reading for this many seconds
+
 # The 31 supported intents (kept in sync with generate_assets.py and the model's class_to_idx)
 intents:
   - PLAY_MUSIC

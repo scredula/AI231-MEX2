@@ -375,7 +375,34 @@ def main():
                     help="Command classifier: MEX2-31class | MEX2-trained")
     ap.add_argument("--list-models", action="store_true",
                     help="List available wake-word + classifier models and exit")
+    ap.add_argument("--ui", choices=["tk", "web"], default="tk",
+                    help="tk = desktop window (default); web = browser simulator")
+    ap.add_argument("--host", default=None, help="[--ui web] bind address")
+    ap.add_argument("--port", type=int, default=None, help="[--ui web] HTTP port")
+    ap.add_argument("--no-mic", action="store_true",
+                    help="[--ui web] run without the microphone")
     args = ap.parse_args()
+
+    if args.ui == "web":
+        # Hand over to the browser UI, forwarding the shared flags.
+        import webui
+        argv = [sys.argv[0], "--config", args.config]
+        if args.model:
+            argv += ["--model", args.model]
+        if args.classifier:
+            argv += ["--classifier", args.classifier]
+        if args.host:
+            argv += ["--host", args.host]
+        if args.port:
+            argv += ["--port", str(args.port)]
+        if args.no_mic:
+            argv += ["--no-mic"]
+        old_argv, sys.argv = sys.argv, argv
+        try:
+            return webui.main()
+        finally:
+            sys.argv = old_argv
+
     cfg = load_config(args.config)
     registry = _model_registry(cfg)
     clf_registry = _classifier_registry(cfg)

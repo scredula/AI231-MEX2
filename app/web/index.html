@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hey Mason — Smart Home Simulator</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="pulse" id="pulse"></span>
+    <h1>Hey Mason</h1>
+    <span class="sub">wake-word + command simulator</span>
+  </div>
+  <div class="status" id="status">connecting…</div>
+  <div class="controls">
+    <button id="mic-btn" class="ghost">Start mic</button>
+    <button id="wake-btn">Simulate wake</button>
+    <button id="reset-btn" class="ghost">Reset</button>
+  </div>
+</header>
+
+<main class="board">
+  <!-- ------------------------------------------------------------- column 1 -->
+  <div class="col">
+    <section class="card">
+      <h2>Lights</h2>
+      <div class="bulb-wrap">
+        <svg class="bulb" id="bulb" viewBox="0 0 120 168" aria-label="light bulb">
+          <defs>
+            <radialGradient id="haloGrad" cx="50%" cy="44%" r="52%">
+              <stop offset="0%"   stop-color="var(--bulb)" stop-opacity="0.85"/>
+              <stop offset="65%"  stop-color="var(--bulb)" stop-opacity="0.16"/>
+              <stop offset="100%" stop-color="var(--bulb)" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle class="halo" cx="60" cy="70" r="64" fill="url(#haloGrad)"/>
+          <path class="rays" d="M14 70H3M117 70h11M60 10V-1M23 33l-8-8M97 33l8-8M23 107l-8 8M97 107l8 8"/>
+          <path class="glass" d="M60 18c-22 0-40 17-40 39 0 14 7 22 13 30 4 5 6 9 6 15h42c0-6 2-10 6-15 6-8 13-16 13-30 0-22-18-39-40-39z"/>
+          <path class="filament" d="M45 94c7-5 6-15 0-20M75 94c-7-5-6-15 0-20M60 74v22"/>
+          <rect class="cap" x="44" y="104" width="32" height="9"  rx="2"/>
+          <rect class="cap" x="46" y="115" width="28" height="7"  rx="2"/>
+          <rect class="cap" x="49" y="124" width="22" height="8"  rx="4"/>
+        </svg>
+      </div>
+      <div class="row center">
+        <span class="pill" id="light-state">off</span>
+        <span class="pill" id="light-bright">100 %</span>
+        <span class="pill" id="light-color">warm white</span>
+      </div>
+      <div class="quick">
+        <button data-intent="LIGHT_ON">On</button>
+        <button data-intent="LIGHT_OFF">Off</button>
+        <button data-intent="BRIGHTNESS_20">20 %</button>
+        <button data-intent="BRIGHTNESS_60">60 %</button>
+        <button data-intent="BRIGHTNESS_100">100 %</button>
+        <button data-intent="COLOR_RED"   class="sw" style="--c:#ff4136">red</button>
+        <button data-intent="COLOR_GREEN" class="sw" style="--c:#2ecc40">green</button>
+        <button data-intent="COLOR_BLUE"  class="sw" style="--c:#0074d9">blue</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Music</h2>
+      <div class="now">
+        <span class="now-icon" id="music-icon">&#9835;</span>
+        <div>
+          <div id="music-track">— nothing playing —</div>
+          <div class="sub2" id="music-state">stopped</div>
+        </div>
+      </div>
+      <div class="volume">
+        <div class="vol-bar"><i id="vol-fill"></i></div>
+        <span class="sub2" id="vol-val">70 %</span>
+      </div>
+      <div class="quick">
+        <button data-intent="PLAY_MUSIC">&#9654; play</button>
+        <button data-intent="PAUSE">&#10073;&#10073; pause</button>
+        <button data-intent="NEXT">&#9197; next</button>
+        <button data-intent="STOP">&#9632; stop</button>
+        <button data-intent="VOLUME_DOWN">&#128265; down</button>
+        <button data-intent="VOLUME_UP">&#128266; up</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Assistant</h2>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="row">
+        <span class="pill" id="call-state">call: idle</span>
+        <span class="pill" id="msg-state">messages: 0</span>
+      </div>
+      <div class="quick">
+        <button data-intent="TIME">&#128336; time</button>
+        <button data-intent="CALL">&#128222; call</button>
+        <button data-intent="MESSAGE">&#128172; message</button>
+        <button data-intent="WEATHER">&#9925; weather</button>
+      </div>
+      <div class="bubble hidden" id="msg-bubble"></div>
+    </section>
+  </div>
+  <!-- ------------------------------------------------------------- column 2 -->
+  <div class="col">
+    <section class="card">
+      <h2>Weather <span class="tag" id="w-place">Cebu, PH</span></h2>
+      <div class="weather">
+        <div class="w-icon" id="w-icon">&#9925;</div>
+        <div>
+          <div class="w-temp"><span id="w-temp">--</span><small>&#176;C</small></div>
+          <div class="sub2" id="w-desc">loading…</div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="pill" id="w-feels">feels --&#176;</span>
+        <span class="pill" id="w-hum">-- % hum</span>
+        <span class="pill" id="w-wind">-- km/h</span>
+      </div>
+      <div class="meta" id="w-meta">source: —</div>
+    </section>
+
+    <section class="card">
+      <h2>Thermostat</h2>
+      <div class="dial">
+        <svg viewBox="0 0 120 120">
+          <circle class="dial-bg" cx="60" cy="60" r="46"/>
+          <circle class="dial-arc" id="dial-arc" cx="60" cy="60" r="46"/>
+        </svg>
+        <div class="dial-val"><span id="thermo-val">22</span><small>&#176;C</small></div>
+      </div>
+      <div class="quick center">
+        <button data-intent="TEMPERATURE_18">18&#176;</button>
+        <button data-intent="TEMPERATURE_22">22&#176;</button>
+        <button data-intent="TEMPERATURE_26">26&#176;</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Timer</h2>
+      <div class="dial">
+        <svg viewBox="0 0 120 120">
+          <circle class="dial-bg" cx="60" cy="60" r="46"/>
+          <circle class="dial-arc timer-arc" id="timer-arc" cx="60" cy="60" r="46"/>
+        </svg>
+        <div class="dial-val"><span id="timer-val">--</span><small id="timer-unit"></small></div>
+      </div>
+      <div class="quick center">
+        <button data-intent="TIMER_10s">10 s</button>
+        <button data-intent="TIMER_30s">30 s</button>
+        <button data-intent="TIMER_1m">1 min</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Alarms &amp; reminders</h2>
+      <div class="chips" id="alarms"><span class="sub2">no alarms</span></div>
+      <ul class="list" id="reminders"><li class="sub2">no reminders</li></ul>
+      <div class="quick">
+        <button data-intent="ALARM_6_00AM">6:00 AM</button>
+        <button data-intent="ALARM_8_00AM">8:00 AM</button>
+        <button data-intent="ALARM_9_00PM">9:00 PM</button>
+        <button data-intent="CREATE_REMINDER_DRINK_WATER">&#128167; water</button>
+        <button data-intent="CREATE_REMINDER_EXERCISE">&#127939; exercise</button>
+        <button data-intent="CREATE_REMINDER_STUDY">&#128218; study</button>
+        <button data-intent="LIST_REMINDERS">&#128203; list</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ------------------------------------------------------------- column 3 -->
+  <div class="col">
+    <section class="card">
+      <h2>Wake word <span class="tag" id="wake-model">—</span></h2>
+      <div class="meter">
+        <i class="meter-fill" id="wake-fill"></i>
+        <b class="meter-thresh" id="wake-thresh"></b>
+      </div>
+      <div class="meta"><span id="wake-prob">0.000</span> / threshold
+        <span id="wake-thr">0.15</span> · <span id="wake-state">idle</span></div>
+      <div class="last" id="last-cmd">no command yet</div>
+      <div class="quick">
+        <span class="pill" id="mic-pill">mic off</span>
+        <span class="pill" id="clf-pill">classifier —</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Top-10 predictions</h2>
+      <ul class="topk" id="topk"><li class="sub2">waiting for a command…</li></ul>
+    </section>
+
+    <section class="card">
+      <h2>Command</h2>
+      <form id="cmd-form">
+        <input id="cmd-input" autocomplete="off" spellcheck="false"
+               placeholder='try "turn on the lights" or "color red" or "weather"'>
+        <button type="submit">Run</button>
+      </form>
+      <div class="meta">Typed phrases use the keyword fast-path. Click any button —
+        or speak “Hey Mason” — to run the real model.</div>
+      <div class="log" id="log"></div>
+    </section>
+  </div>
+
+  <footer class="foot">
+    <span>Weather by Open-Meteo (keyless)</span>
+    <span id="foot-intents"></span>
+  </footer>
+</main>
+</body>
+</html>

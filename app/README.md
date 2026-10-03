@@ -19,7 +19,8 @@ Wake-word detection runs on **ONNX Runtime**; the log-mel frontend is pure NumPy
 
 ```bash
 python setup.py                      # creates ./venv and installs requirements.txt
-./venv/bin/python app.py             # launch with the default model
+./venv/bin/python app.py             # launch with the default model (Tkinter window)
+./venv/bin/python app.py --ui web    # browser smart-home simulator (see below)
 ./venv/bin/python app.py --model DS-CNN      # pick a wake-word model
 ./venv/bin/python app.py --list-models       # show available models
 ```
@@ -60,7 +61,11 @@ app/
 ├── requirements.txt
 ├── run.sh              # optional launcher (passes args: ./run.sh --model DS-CNN)
 ├── config.yaml         # paths (relative to this folder), thresholds, 32 intents
-├── app.py              # Tkinter GUI + orchestration
+├── app.py              # Tkinter GUI + orchestration (--ui tk) / switches to web UI
+├── webui.py            # browser UI server: stdlib HTTP + Server-Sent Events (--ui web)
+├── web/                # the dashboard: index.html + style.css + app.js (no build step)
+├── device.py           # simulated smart-home state (bulb, thermostat, timer, alarms…)
+├── weather.py          # live Cebu weather via Open-Meteo (key-less, cached, offline-safe)
 ├── features.py         # exact log-mel frontend (NumPy; matches torchaudio training)
 ├── wakeword.py         # ONNX wake-word detector + sliding-window debounce
 ├── commands.py         # command classifier (real ONNX OR placeholder) + action mapping
@@ -95,6 +100,42 @@ app/
 | `PLAY_MUSIC`, `NEXT`, `PAUSE`, `STOP`, `VOLUME_UP`, `VOLUME_DOWN` | pygame music player (`music/`) |
 | `WEATHER` | plays `assets/audio/weather.mp3` |
 | the other 24 intents | shows `assets/jpgs/<INTENT>.jpg` popup |
+
+## Browser UI — smart-home simulator (`--ui web`)
+
+A richer, animated dashboard that **simulates** each command instead of flashing a
+JPG. It is served by `webui.py` (Python **stdlib** HTTP + Server-Sent Events) and
+reuses the *same* `config.yaml` models, so a spoken command and a clicked/typed one
+land in the same simulated device (`device.py`).
+
+```bash
+./venv/bin/python app.py --ui web                 # open http://<host>:8000/
+./venv/bin/python app.py --ui web --classifier MEX2-trained
+./venv/bin/python webui.py --port 8080 --open     # or run it directly
+./venv/bin/python webui.py --no-mic               # simulation only
+```
+
+| Panel | Intent(s) | What you see |
+|-------|-----------|--------------|
+| 💡 Lights | `LIGHT_ON/OFF`, `BRIGHTNESS_*`, `COLOR_*` | the bulb lights up, dims to 20/60/100 %, recolours red/green/blue |
+| ☁️ Weather | `WEATHER` | **live Cebu City conditions** (Open-Meteo, no key) |
+| 🌡️ Thermostat | `TEMPERATURE_18/22/26` | dial sweeps to the new setpoint |
+| ⏱️ Timer | `TIMER_10s/30s/1m` | countdown ring (server-side countdown) |
+| ⏰ Alarms / reminders | `ALARM_*`, `CREATE_REMINDER_*`, `LIST_REMINDERS` | chips + list |
+| 🎵 Music | `PLAY_MUSIC/NEXT/PAUSE/STOP/VOLUME_*` | now-playing card + volume meter |
+| 🕐 Assistant | `TIME`, `CALL`, `MESSAGE` | clock highlight, call state, message bubble |
+| Wake word | the detector | live probability meter with the trigger threshold marker |
+
+* **Weather** is fetched **server-side** in `weather.py` from
+  [Open-Meteo](https://open-meteo.com) — free, key-less, JSON — cached for
+  `weather.ttl_s` and falling back to the last reading (marked `stale`) when
+  offline. Change `weather.place` / `lat` / `lon` in `config.yaml` (default
+  **Cebu City, Philippines**).
+* **Typed text** uses the keyword fast-path (`commands.placeholder_from_text`);
+  clicking a button or saying “Hey Mason” exercises the **real ONNX model**.
+* Endpoints: `GET /` · `/events` (SSE) · `/state` · `/weather` · `/models`,
+  `POST /command` · `/wake` · `/mic` · `/reset`. The page is plain HTML/CSS/JS with
+  no build step and no CDN; on the Pi 5 point Chromium at the server for kiosk mode.
 
 ## Command classifier status
 The real 31-class command model is bundled at `models/command_classifier/`:
