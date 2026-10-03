@@ -1,0 +1,32 @@
+{
+  "file_size_mb": 0.08051776885986328,
+  "inputs": [
+    {
+      "name": "input",
+      "shape": [
+        "batch_size",
+        1,
+        64,
+        "time"
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "output",
+      "shape": [
+        "batch_size",
+        1
+      ]
+    }
+  ],
+  "op_types": [
+    "Conv",
+    "Flatten",
+    "Gemm",
+    "GlobalAveragePool",
+    "MaxPool",
+    "Relu"
+  ],
+  "num_nodes": 21
+}

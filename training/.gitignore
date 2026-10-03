@@ -1,0 +1,58 @@
+# Data (large, regenerate via scripts/download_negatives.py)
+data/
+!data/.gitkeep
+
+# Training runs / outputs
+runs/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# But keep exported demo models if committed explicitly
+!models/*/best_model.onnx
+!app/models/*/best_model.onnx
+!app/models/wake_word/*/best_model.onnx
+
+# App virtualenv (created by app/setup.py)
+app/venv/
+app/.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# Downloads / temp
+_downloads/
+*.part
+_download_bg.log
+_smoketest*.log
+_conn.log
+_setup.log
+_gennb.log
+training.log
+precompute.log
+export.log
+validate.log
+_*.log
+configs/_smoke.yaml
+configs/_mini.yaml
+
+# Demo music (user-provided audio files)
+app/music/*.mp3
+app/music/*.wav
+app/music/*.ogg
+app/music/*.flac
+app/music/*.m4a
+# ...but keep the bundled synthesized demo tracks
+!app/music/demo_*.wav
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,12 @@
+# Hey Mason demo app — Python dependencies
+# Install with:  python setup.py   (creates ./venv and installs these)
+#
+# All of these ship wheels for Windows, Linux and macOS.
+numpy
+scipy
+onnxruntime
+sounddevice          # microphone capture (PortAudio is bundled in the wheel)
+pygame               # music playback
+pillow               # JPG popups
+soundfile            # reading WAV files
+pyyaml

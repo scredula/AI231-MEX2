@@ -1,0 +1,16 @@
+{
+  "sample_rate": 16000,
+  "n_fft": 400,
+  "hop_length": 160,
+  "win_length": 400,
+  "n_mels": 64,
+  "f_min": 0,
+  "f_max": 8000,
+  "power": 2.0,
+  "top_db": 80.0,
+  "amp_eps": 1e-10,
+  "clip_duration": 1.0,
+  "normalize": true,
+  "mean": -24.870235747192055,
+  "std": 15.589092768728733
+}

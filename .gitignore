@@ -1,0 +1,51 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ---- Large / user-provided data (NOT committed; see data/README.md) ----
+# Keep the directory tree (.gitkeep), READMEs and small manifests.
+data/**/*.wav
+data/**/*.flac
+data/**/*.mp3
+data/**/*.ogg
+data/**/*.m4a
+data/**/*.npy
+data/**/*.npz
+data/negative/*
+!data/negative/.gitkeep
+!data/negative/metadata.csv
+!data/negative/README.md
+data/features/*
+!data/features/.gitkeep
+!data/features/README.md
+data/wake_word/train/*
+data/wake_word/val/*
+data/wake_word/test/*
+!data/wake_word/*/.gitkeep
+!data/wake_word/README.md
+
+# ---- Downloads / logs / temp ----
+_downloads/
+*.part
+*.log
+!runs/**/*.log
+
+# ---- Music (user-provided audio; keep the bundled demo tracks) ----
+app/music/*
+!app/music/demo_*.wav
+!app/music/.gitkeep
+
+# NOTE: pre-trained models and training checkpoints ARE committed on purpose:
+#   app/models/**            (selectable wake-word + classifier ONNX)
+#   runs/**                  (logs + best_model.pt / best_model.onnx)

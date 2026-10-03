@@ -1,0 +1,103 @@
+# Wake Word Validation Configuration
+# Usage: python validate.py --config configs/wake_word_val.yaml --model runs/wake_word/<timestamp>/best_model.onnx
+
+# Experiment tracking
+experiment:
+  name: "wake_word_hey_mason_val"
+  output_dir: "runs/wake_word_val"
+  seed: 42
+  device: "cpu"  # Validation typically on CPU for consistency
+
+# Data paths
+data:
+  positive_test: "data/wake_word/test"
+  negative_root: "data/negative"
+  negative_metadata: "data/negative/metadata.csv"
+  features_dir: "data/features"
+  use_feature_cache: true
+  
+  # Use same negative ratios as training for consistency
+  negative_ratios:
+    speech: 3.0
+    noise: 2.0
+    silence: 1.0
+    mex2: 2.0
+
+# Audio preprocessing (MUST match training)
+audio:
+  sample_rate: 16000
+  clip_duration: 1.0
+  n_fft: 400
+  hop_length: 160
+  win_length: 400
+  n_mels: 64
+  f_min: 0
+  f_max: 8000
+  power: 2.0
+  normalized: false
+  
+  # Normalization - MUST use training stats
+  normalize: true
+  mean: null  # Will be loaded from model checkpoint / training stats
+  std: null
+
+# No augmentation for validation
+augmentation:
+  enabled: false
+
+# Dataloader
+dataloader:
+  batch_size: 64
+  num_workers: 0
+  pin_memory: true
+  persistent_workers: false
+
+# Model (architecture must match training)
+model:
+  type: "matchboxnet"
+  input_channels: 1
+  n_mels: 64
+  num_classes: 1
+  stem_channels: 64
+  stem_kernel_size: 11
+  stem_stride: 2
+  blocks:
+    - channels: 64
+      kernel_size: 11
+      dilation: 1
+      num_blocks: 3
+      dropout: 0.1
+    - channels: 128
+      kernel_size: 13
+      dilation: 1
+      num_blocks: 2
+      dropout: 0.1
+    - channels: 256
+      kernel_size: 15
+      dilation: 1
+      num_blocks: 1
+      dropout: 0.1
+  head_dropout: 0.2
+
+# Validation settings
+validation:
+  thresholds: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  compute_eer: true
+  compute_roc_auc: true
+  compute_det_curve: true
+  compute_confusion_matrix: true
+  compute_per_threshold_metrics: true
+  
+  # Latency benchmarking
+  benchmark:
+    enabled: true
+    num_runs: 1000
+    warmup_runs: 100
+    batch_sizes: [1, 4, 16]
+
+# Logging
+logging:
+  tensorboard: false
+  csv_log: true
+  save_predictions: true
+  save_plots: true

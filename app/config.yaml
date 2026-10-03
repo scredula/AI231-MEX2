@@ -1,0 +1,80 @@
+# Raspberry Pi 5 wake-word + command demo configuration
+# Paths are relative to the repository root.
+
+wake_word:
+  model_dir: "models/wake_word/matchboxnet"   # default (overridable via --model)
+  onnx_name: "best_model.onnx"
+  threshold: 0.15                     # trigger threshold (default)
+  hop_ms: 100                         # sliding-window stride
+  consecutive_hits: 2                 # debounce: N consecutive windows above threshold
+  cooldown_s: 2.0                     # min seconds between wake triggers
+  num_threads: 2                      # ORT threads (limit for thermal management)
+  # selectable wake-word models:  python app.py --model <NAME>
+  models:
+    "DS-CNN": "models/wake_word/dscnn"
+    "TC-ResNet": "models/wake_word/tcresnet"
+    "MatchboxNet": "models/wake_word/matchboxnet"
+    "VGG": "models/wake_word/vgg"
+
+command:
+  model: "MEX2-31class"                    # default (overridable via --classifier)
+  model_dir: "models/command_classifier"   # command_classifier.onnx + command_metadata.json
+  onnx_name: null                     # null = auto-detect (best_model.onnx | command_classifier.onnx)
+  meta_name: null                     # null = auto-detect (command_metadata.json)
+  unknown_threshold: null             # null = use the calibrated value in the metadata (0.163)
+  capture_s: 1.6                      # seconds of audio captured after wake word (>= 24352 samples)
+  num_threads: 2
+  # selectable command classifiers:  python app.py --classifier <NAME>
+  models:
+    "MEX2-31class": "models/command_classifier"   # bundled, validated on the Pi 5 (metadata frontend)
+    "MEX2-trained": "models/classifier"           # trained by the pipeline (31-class, torchaudio frontend)
+
+audio:
+  device: null                        # null = system default input; or integer index
+  block_ms: 32
+
+assets:
+  jpgs_dir: "assets/jpgs"
+  weather_clip: "assets/audio/weather.mp3"
+  beep_wav: "assets/audio/beep.wav"   # "listening" cue played on wake-word trigger
+  beep_volume: 0.4
+  beep: true                          # set false to disable the wake cue
+  popup_duration_ms: 2500
+
+music:
+  dir: "music"                        # put .mp3/.wav songs here
+  volume: 0.7
+
+# The 31 supported intents (kept in sync with generate_assets.py and the model's class_to_idx)
+intents:
+  - PLAY_MUSIC
+  - VOLUME_UP
+  - VOLUME_DOWN
+  - NEXT
+  - PAUSE
+  - STOP
+  - LIGHT_ON
+  - LIGHT_OFF
+  - WEATHER
+  - TIME
+  - CALL
+  - MESSAGE
+  - LIST_REMINDERS
+  - BRIGHTNESS_20
+  - BRIGHTNESS_60
+  - BRIGHTNESS_100
+  - COLOR_RED
+  - COLOR_GREEN
+  - COLOR_BLUE
+  - TEMPERATURE_18
+  - TEMPERATURE_22
+  - TEMPERATURE_26
+  - TIMER_10s
+  - TIMER_30s
+  - TIMER_1m
+  - ALARM_6_00AM
+  - ALARM_8_00AM
+  - ALARM_9_00PM
+  - CREATE_REMINDER_DRINK_WATER
+  - CREATE_REMINDER_EXERCISE
+  - CREATE_REMINDER_STUDY

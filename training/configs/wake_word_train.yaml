@@ -1,0 +1,159 @@
+# Wake Word Training Configuration
+# Usage: python train.py --config configs/wake_word_train.yaml
+
+# Experiment tracking
+experiment:
+  name: "wake_word_hey_mason"
+  output_dir: "runs/wake_word"
+  seed: 42
+  device: "cuda"  # "cuda" or "cpu"
+
+# Data paths
+data:
+  positive_train: "data/wake_word/train"
+  positive_val: "data/wake_word/val"
+  positive_test: "data/wake_word/test"
+  negative_root: "data/negative"
+  negative_metadata: "data/negative/metadata.csv"
+  # Precomputed log-mel features (see scripts/precompute_features.py)
+  features_dir: "data/features"
+  use_feature_cache: true
+  
+  # Negative sampling ratios (per positive sample)
+  negative_ratios:
+    speech: 3.0    # Common Voice speech
+    noise: 2.0     # MUSAN noise/music
+    silence: 1.0   # Room silence
+    mex2: 2.0      # MEX2 commands (when available)
+
+# Audio preprocessing
+audio:
+  sample_rate: 16000
+  clip_duration: 1.0  # seconds
+  n_fft: 400
+  hop_length: 160     # 10ms at 16kHz
+  win_length: 400     # 25ms at 16kHz
+  n_mels: 64
+  f_min: 0
+  f_max: 8000
+  power: 2.0
+  normalized: false
+  
+  # Normalization (computed on train set)
+  normalize: true
+  mean: null  # auto-computed
+  std: null   # auto-computed
+
+# Data augmentation (training only)
+augmentation:
+  enabled: true
+  spec_augment:
+    freq_mask_param: 12
+    time_mask_param: 20
+    num_freq_masks: 2
+    num_time_masks: 2
+  time_stretch:
+    enabled: true
+    rate_range: [0.9, 1.1]
+  pitch_shift:
+    enabled: true
+    n_steps_range: [-2, 2]
+  noise_injection:
+    enabled: true
+    snr_range: [10, 30]  # dB
+  gain:
+    enabled: true
+    min_gain_db: -6
+    max_gain_db: 6
+
+# Dataloader
+# NOTE: num_workers must be 0 on filesystems without usable shared memory
+#       (e.g. some HPC/container mounts); increase to 8 on a normal local disk.
+dataloader:
+  batch_size: 128
+  num_workers: 0
+  pin_memory: true
+  persistent_workers: false
+  prefetch_factor: 4
+  use_sampler: true
+
+# Model architecture
+# arch: matchboxnet2d | dscnn | tcresnet | vgg_small
+model:
+  arch: "matchboxnet2d"
+  input_channels: 1
+  n_mels: 64
+  num_classes: 1
+
+  # --- matchboxnet2d ---
+  stem_channels: 64
+  stem_kernel: 5
+  channels: [64, 128, 256]
+  kernels: [11, 13, 15]
+  blocks_per_stage: [2, 2, 2]
+  head_channels: 128
+  dropout: 0.2
+  se: false
+
+  # --- dscnn: dscnn_channels (int), dscnn_blocks, dropout ---
+  # --- tcresnet: tcresnet_channels [16,24,32,48], tcresnet_kernel 9, dropout ---
+  # --- vgg_small: vgg_channels [32,64,128,256], dropout ---
+
+
+# Training hyperparameters
+training:
+  epochs: 50
+  optimizer:
+    type: "adamw"
+    lr: 0.001
+    weight_decay: 1.0e-4
+    betas: [0.9, 0.999]
+    eps: 1.0e-8
+  
+  scheduler:
+    type: "cosine_annealing_warm_restarts"
+    T_0: 10
+    T_mult: 2
+    eta_min: 1.0e-6
+  
+  # Loss
+  loss:
+    type: "bce_with_logits"
+    pos_weight: null  # auto-computed from class balance
+    label_smoothing: 0.05
+  
+  # Gradient clipping
+  grad_clip_norm: 1.0
+  
+  # Mixed precision
+  amp: true
+  
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 10
+    min_delta: 1.0e-4
+    monitor: "val_eer"  # lower is better
+    mode: "min"
+  
+  # Checkpointing
+  checkpoint:
+    save_best: true
+    save_last: true
+    metric: "val_eer"
+    mode: "min"
+
+# Validation metrics
+validation:
+  thresholds: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  compute_eer: true
+  compute_roc_auc: true
+  compute_det_curve: true
+
+# Logging
+logging:
+  log_interval: 50  # batches
+  tensorboard: true
+  csv_log: true
+  log_gradients: false
+  log_model_graph: true

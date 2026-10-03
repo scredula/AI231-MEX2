@@ -1,0 +1,132 @@
+# Command Classifier Training Configuration
+# (Enable once the MEX2 command dataset is released.)
+#
+# Usage: python train.py --config configs/command_train.yaml
+#
+# 32 classes = 13 fixed intents + 18 slot variants + OUT_OF_SCOPE
+# (exactly the classes present in the released gold test/holdout splits):
+#   Fixed: PLAY_MUSIC, WEATHER, TIME, LIGHT_ON, LIGHT_OFF, PAUSE, STOP, NEXT,
+#          VOLUME_UP, VOLUME_DOWN, CALL, MESSAGE, LIST_REMINDERS
+#   Slots: BRIGHTNESS_{20,60,100}_percent, COLOR_{Red,Green,Blue},
+#          TEMPERATURE_{18,22,26}_degrees,
+#          TIMER_{10_seconds,30_seconds,1_minute},
+#          ALARM_{6:00_AM,8:00_AM,9:00_PM},
+#          CREATE_REMINDER_{Drink_water,Exercise,Study}
+#   Plus: OUT_OF_SCOPE
+#
+# Validation split: the released dataset ships train/test/holdout only, so
+# scripts/prepare_gold_mex2.py carves a speaker-disjoint `val` split from `train`.
+
+experiment:
+  name: "command_mex2"
+  output_dir: "runs/command"
+  seed: 42
+  device: "cuda"
+
+data:
+  # Produced by scripts/prepare_gold_mex2.py from the released gold dataset.
+  manifest: "data/command/manifest.csv"
+  class_names: "data/command/labels.json"
+  audio_root: "/home/sonny.redula/MEX2-Update/Classifier_Dataset/ai231-me2-gold-dataset"
+  split_column: "split"     # train / val / test (speaker-disjoint)
+  trim_silence: true        # crop zero-padding before the fixed clip window
+
+audio:
+  sample_rate: 16000
+  clip_duration: 2.0        # commands up to ~1.5 s + context
+  n_fft: 400
+  hop_length: 160
+  win_length: 400
+  n_mels: 64
+  f_min: 0
+  f_max: 8000
+  power: 2.0
+  normalized: false
+  normalize: true
+  mean: null
+  std: null
+
+augmentation:
+  enabled: true
+  spec_augment:
+    freq_mask_param: 12
+    time_mask_param: 24
+    num_freq_masks: 2
+    num_time_masks: 2
+  time_stretch:
+    enabled: true
+    rate_range: [0.9, 1.1]
+  pitch_shift:
+    enabled: true
+    n_steps_range: [-2, 2]
+  noise_injection:
+    enabled: true
+    snr_range: [10, 30]
+  gain:
+    enabled: true
+    min_gain_db: -6
+    max_gain_db: 6
+
+dataloader:
+  batch_size: 128
+  num_workers: 8
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 4
+
+model:
+  arch: "matchboxnet2d"
+  input_channels: 1
+  n_mels: 64
+  num_classes: 32
+  stem_channels: 64
+  stem_kernel: 5
+  channels: [64, 128, 256]
+  kernels: [11, 13, 15]
+  blocks_per_stage: [2, 2, 2]
+  head_channels: 128
+  dropout: 0.2
+  se: false
+
+training:
+  epochs: 80
+  amp: true
+  grad_clip_norm: 1.0
+  optimizer:
+    type: "adamw"
+    lr: 0.001
+    weight_decay: 1e-4
+    betas: [0.9, 0.999]
+    eps: 1e-8
+  scheduler:
+    type: "cosine_annealing_warm_restarts"
+    T_0: 10
+    T_mult: 2
+    eta_min: 1e-6
+  loss:
+    type: "cross_entropy"
+    label_smoothing: 0.05
+  early_stopping:
+    enabled: true
+    patience: 15
+    min_delta: 1e-4
+    monitor: "val_accuracy"
+    mode: "max"
+  checkpoint:
+    save_best: true
+    save_last: true
+    metric: "val_accuracy"
+    mode: "max"
+
+validation:
+  thresholds: [0.1, 0.5, 0.9]
+  compute_confusion_matrix: true
+  benchmark:
+    enabled: true
+    num_runs: 500
+    warmup_runs: 100
+
+logging:
+  log_interval: 50
+  tensorboard: true
+  csv_log: true
