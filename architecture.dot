@@ -1,0 +1,54 @@
+digraph G {
+    rankdir=TB;
+    
+    subgraph cluster_input {
+        label="Input"; style=filled; color=lightblue;
+        A[label="Mic 16kHz", style=filled, fillcolor=lightblue];
+        B[label="VAD", style=filled, fillcolor=lightblue];
+        C[label="LogMel 64bins", style=filled, fillcolor=lightblue];
+        D[label="Normalize", style=filled, fillcolor=lightblue];
+        A->B->C->D;
+    }
+    subgraph cluster_wake {
+        label="Wake Word (Hey Mason)"; style=filled; color=orange;
+        E[label="CNN Backbone", style=filled, fillcolor=lightyellow];
+        D->E;
+        F[label="DS-CNN", style=filled, fillcolor=white];
+        G[label="MatchboxNet*", style=filled, fillcolor=white];
+        H[label="TC-ResNet", style=filled, fillcolor=white];
+        I[label="VGG-Small", style=filled, fillcolor=white];
+        E->{F G H I};
+        {F G H I}->J[label="Sigmoid P(wake)"];
+        J->K[label="WAKE DETECTED"];
+        J->L[label="Keep Listening", style=dashed];
+    }
+    subgraph cluster_clf {
+        label="Command Classifier (31 intents)"; style=filled; color=purple;
+        K->M[label="Frontend"];
+        N1[label="MetadataFrontend\nbundled", style=filled, fillcolor=white];
+        N2[label="LogMelFrontend\ntrained", style=filled, fillcolor=white];
+        M->{N1 N2};
+        {N1 N2}->O[label="ONNX Runtime"];
+        P1[label="MEX2-31class 27MB", style=filled, fillcolor=white];
+        P2[label="MEX2-trained 2.3MB", style=filled, fillcolor=white];
+        O->{P1 P2};
+        {P1 P2}->Q[label="Softmax 31"];
+        Q->R[label="max>thr?", shape=diamond];
+        R->S[label="Intent"]; R->T[label="UNKNOWN"];
+    }
+    subgraph cluster_action {
+        label="Command Execution"; style=filled; color=green;
+        S->U[label="Dispatch"];
+        V1[label="PLAY_MUSIC"]; V2[label="SET_ALARM"]; V3[label="GET_WEATHER"];
+        V4[label="...28 more"]; V5[label="PLACEHOLDER\nPop-up/TTS/GPIO"];
+        U->{V1 V2 V3 V4 V5};
+    }
+    subgraph cluster_train {
+        label="Training Pipeline"; style=filled; color=red;
+        X1[label="Raw Audio"]; X2[label="LogMelSpectrogram"];
+        X3[label="Augmentations"]; X4[label="MatchboxNet2D"];
+        X5[label="Loss: BCE/CE"]; X6[label="Train/Val/Test"];
+        X7[label="Export ONNX"]; X8[label="runs/.../best_model.onnx"];
+        X1->X2->X3->X4->X5->X6->X7->X8;
+    }
+}
