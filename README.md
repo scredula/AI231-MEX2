@@ -86,7 +86,7 @@ From `training/` (after uploading the datasets — see `data/README.md`):
 
 ```bash
 cd training
-python scripts/setup_env.sh                       # create .venv + install requirements
+bash scripts/setup_env.sh                          # create .venv + install requirements
 source .venv/bin/activate
 
 # ---- training (one line) ----
